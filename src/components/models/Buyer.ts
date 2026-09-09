@@ -8,10 +8,12 @@ export class Buyer implements IBuyer {
 
   constructor() {};
 
+  // Сохранение либо обновление данных покупателя
   setData(data: Partial<IBuyer>): void {
     Object.assign(this, data)
   }
 
+  // получение всех данных покупателя
   getData(): IBuyer {
     return {
       payment: this.payment,
@@ -21,6 +23,7 @@ export class Buyer implements IBuyer {
     };
   }
 
+  // очистка данных покупателя
   clear(): void {
     this.payment = '';
     this.address = '';
@@ -28,6 +31,7 @@ export class Buyer implements IBuyer {
     this.phone = '';
   }
 
+  // проверка заполненности данных покупателя
   validate(): Partial<Record<keyof IBuyer, string>> {
     const errors: Partial<Record<keyof IBuyer, string>> = {};
 
