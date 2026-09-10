@@ -1,10 +1,10 @@
-import { IBuyer, TPayment } from "../../types";
+import { FormErrors, IBuyer, TPayment } from "../../types";
 
-export class Buyer implements IBuyer {
-  payment: TPayment = '';
-  address: string = '';
-  email: string = '';
-  phone: string = '';
+export class Buyer {
+  private payment: TPayment = '';
+  private address: string = '';
+  private email: string = '';
+  private phone: string = '';
 
   constructor() {};
 
@@ -32,8 +32,8 @@ export class Buyer implements IBuyer {
   }
 
   // проверка заполненности данных покупателя
-  validate(): Partial<Record<keyof IBuyer, string>> {
-    const errors: Partial<Record<keyof IBuyer, string>> = {};
+  validate(): FormErrors {
+    const errors: FormErrors = {};
 
     if(!this.payment) {
       errors.payment = 'Не выбран вид оплаты';

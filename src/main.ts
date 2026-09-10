@@ -60,6 +60,9 @@ console.log('Есть ли удалённый товар:', basket.has(apiProduc
 // Очистка корзины
 basket.clear();
 
+console.log('Список покупок после очистки', basket.getItems());
+
+
 // Проверка работы методов Buyer
 // ======================================
 const buyer = new Buyer();
