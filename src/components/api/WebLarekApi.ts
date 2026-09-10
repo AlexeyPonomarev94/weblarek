@@ -11,10 +11,10 @@ export class WebLarekApi {
   }
 
   getProducts(): Promise<IProductResponse> {
-    return this.api.get<IProductResponse>('/product');
+    return this.api.get<IProductResponse>('/product/');
   }
 
   createOrder(order: IOrder): Promise<IOrderResponse> {
-    return this.api.post<IOrderResponse>('/order', order);
+    return this.api.post<IOrderResponse>('/order/', order);
   }
 }
