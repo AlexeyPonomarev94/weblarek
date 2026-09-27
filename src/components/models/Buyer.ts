@@ -1,4 +1,5 @@
 import { FormErrors, IBuyer, TPayment } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class Buyer {
   private payment: TPayment = '';
@@ -6,11 +7,12 @@ export class Buyer {
   private email: string = '';
   private phone: string = '';
 
-  constructor() {};
+  constructor(protected readonly events: IEvents) {}
 
   // Сохранение либо обновление данных покупателя
   setData(data: Partial<IBuyer>): void {
     Object.assign(this, data)
+    this.events.emit('buyer:changed');
   }
 
   // получение всех данных покупателя
@@ -29,6 +31,8 @@ export class Buyer {
     this.address = '';
     this.email = '';
     this.phone = '';
+
+    this.events.emit('buyer:changed');
   }
 
   // проверка заполненности данных покупателя
