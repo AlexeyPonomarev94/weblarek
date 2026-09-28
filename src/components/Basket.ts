@@ -1,8 +1,14 @@
 import { Component } from "./base/Component";
 import { IEvents } from "./base/Events";
-import { ensureElement } from '../utils/utils';
+import { ensureElement } from "../utils/utils";
 
-export class Basket extends Component<HTMLElement> {
+interface IBasket {
+  items: HTMLElement[];
+  total: number;
+  disabled: boolean;
+}
+
+export class Basket extends Component<IBasket> {
   protected readonly listElement: HTMLElement;
   protected readonly totalElement: HTMLElement;
   protected readonly orderButton: HTMLButtonElement;
@@ -12,11 +18,9 @@ export class Basket extends Component<HTMLElement> {
     protected readonly events: IEvents,
   ) {
     super(container);
-
+    
     this.listElement = ensureElement<HTMLElement>(".basket__list", container);
-
     this.totalElement = ensureElement<HTMLElement>(".basket__price", container);
-
     this.orderButton = ensureElement<HTMLButtonElement>(
       ".basket__button",
       container,
@@ -33,5 +37,9 @@ export class Basket extends Component<HTMLElement> {
 
   set total(value: number) {
     this.totalElement.textContent = `${value} синапсов`;
+  }
+
+  set disabled(value: boolean) {
+    this.orderButton.disabled = value;
   }
 }

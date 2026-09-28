@@ -7,7 +7,7 @@ export class ContactsForm extends Form<HTMLFormElement> {
   protected readonly phoneInput: HTMLInputElement;
 
   constructor(container: HTMLFormElement, events: IEvents) {
-    super(container, events);
+    super(container, events, "contacts");
 
     this.emailInput = ensureElement<HTMLInputElement>(
       'input[name="email"]',
@@ -29,12 +29,6 @@ export class ContactsForm extends Form<HTMLFormElement> {
       this.events.emit("contacts:input", {
         phone: this.phoneInput.value,
       });
-    });
-
-    container.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      this.events.emit("contacts:submit");
     });
   }
 

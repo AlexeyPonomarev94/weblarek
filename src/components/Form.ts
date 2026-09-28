@@ -9,6 +9,7 @@ export class Form<T> extends Component<T> {
   constructor(
     container: HTMLFormElement,
     protected readonly events: IEvents,
+    protected readonly name: string,
   ) {
     super(container);
 
@@ -18,6 +19,11 @@ export class Form<T> extends Component<T> {
     );
 
     this.errorsElement = ensureElement<HTMLElement>(".form__errors", container);
+
+    container.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this.events.emit(`${this.name}:submit`);
+    });
   }
 
   set valid(value: boolean) {

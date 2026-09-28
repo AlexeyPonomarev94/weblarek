@@ -33,30 +33,23 @@ const modalElement = ensureElement<HTMLElement>("#modal-container");
 
 const header = new Header(headerElement, events);
 const gallery = new Gallery(galleryElement);
-const modal = new Modal(modalElement, events);
+const modal = new Modal(modalElement);
 
-const cardCatalogTemplate =
-  ensureElement<HTMLTemplateElement>('#card-catalog');
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>("#card-catalog");
 
-const cardPreviewTemplate =
-  ensureElement<HTMLTemplateElement>('#card-preview');
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>("#card-preview");
 
-const cardBasketTemplate =
-  ensureElement<HTMLTemplateElement>('#card-basket');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>("#card-basket");
 
-const basketTemplate =
-  ensureElement<HTMLTemplateElement>('#basket');
+const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
 
-const orderTemplate =
-  ensureElement<HTMLTemplateElement>('#order');
+const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
 
-const contactsTemplate =
-  ensureElement<HTMLTemplateElement>('#contacts');
+const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
 
-console.log('Список покупок после очистки', basket.getItems());
+console.log("Список покупок после очистки", basket.getItems());
 
-const successTemplate =
-  ensureElement<HTMLTemplateElement>('#success');
+const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 
 const api = new Api(API_URL);
 const webLarekApi = new WebLarekApi(api);
@@ -72,10 +65,11 @@ events.on("catalog:changed", () => {
         true,
       ) as HTMLElement;
 
-    const card = new CardCatalog(cardElement, events);
+    const card = new CardCatalog(cardElement, {
+      onClick: () => events.emit("card:select", { id: product.id }),
+    });
 
     return card.render({
-      id: product.id,
       title: product.title,
       price: product.price,
       category: product.category,
@@ -103,27 +97,42 @@ events.on("product:selected", () => {
     true,
   ) as HTMLElement;
 
-  const card = new CardPreview(cardElement, events);
+  const card = new CardPreview(cardElement, {
+    onClick: () => events.emit("card:button"),
+  });
 
   modal.content = card.render({
-    id: product.id,
     title: product.title,
     price: product.price,
     category: product.category,
     image: `${CDN_URL}${product.image}`,
     description: product.description,
+    button:
+      product.price === null
+        ? "Недоступно"
+        : basket.getItems().some((item) => item.id === product.id)
+          ? "Удалить из корзины"
+          : "В корзину",
+    disabled: product.price === null,
   });
 
   modal.open();
 });
 
-events.on<{ id: string }>("card:add", ({ id }) => {
-  const product = productsModel.getProduct(id);
+events.on("card:button", () => {
+  const product = productsModel.getSelectedProduct();
 
-  if (product) {
+  if (!product) return;
+
+  const isInBasket = basket.getItems().some((item) => item.id === product.id);
+
+  if (isInBasket) {
+    basket.remove(product);
+  } else {
     basket.add(product);
-    modal.close();
   }
+
+  modal.close();
 });
 
 events.on("basket:changed", () => {
@@ -146,10 +155,11 @@ const renderBasket = () => {
       true,
     ) as HTMLElement;
 
-    const card = new CardBasket(cardElement, events);
+    const card = new CardBasket(cardElement, () => {
+      basket.remove(product);
+    });
 
     return card.render({
-      id: product.id,
       title: product.title,
       price: product.price,
       index: index + 1,
@@ -158,6 +168,7 @@ const renderBasket = () => {
 
   basketView.items = items;
   basketView.total = basket.getTotal();
+  basketView.disabled = basket.getCount() === 0;
 
   return basketView.render();
 };
@@ -311,11 +322,6 @@ events.on("contacts:submit", () => {
 events.on("success:close", () => {
   basket.clear();
   buyer.clear();
-  modal.close();
-});
-
-events.on("modal:close", () => {
-  isBasketOpen = false;
   modal.close();
 });
 

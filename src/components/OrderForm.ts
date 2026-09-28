@@ -1,5 +1,6 @@
 import { IEvents } from "./base/Events";
 import { Form } from "./Form";
+import { TPayment } from "../types";
 import { ensureAllElements, ensureElement } from "../utils/utils";
 
 export class OrderForm extends Form<HTMLFormElement> {
@@ -7,7 +8,7 @@ export class OrderForm extends Form<HTMLFormElement> {
   protected readonly addressInput: HTMLInputElement;
 
   constructor(container: HTMLFormElement, events: IEvents) {
-    super(container, events);
+    super(container, events, "order");
 
     this.paymentButtons = ensureAllElements<HTMLButtonElement>(
       ".order__buttons .button_alt",
@@ -21,12 +22,6 @@ export class OrderForm extends Form<HTMLFormElement> {
 
     this.paymentButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        this.paymentButtons.forEach((item) => {
-          item.classList.remove("button_alt-active");
-        });
-
-        button.classList.add("button_alt-active");
-
         this.events.emit("order:payment", {
           payment: button.name,
         });
@@ -38,11 +33,11 @@ export class OrderForm extends Form<HTMLFormElement> {
         address: this.addressInput.value,
       });
     });
+  }
 
-    container.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      this.events.emit("order:submit");
+  set payment(value: TPayment) {
+    this.paymentButtons.forEach((button) => {
+      button.classList.toggle("button_alt-active", button.name === value);
     });
   }
 

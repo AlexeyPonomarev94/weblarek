@@ -1,15 +1,11 @@
 import { Component } from "./base/Component";
-import { IEvents } from "./base/Events";
 import { ensureElement } from "../utils/utils";
 
 export class Modal extends Component<HTMLElement> {
   protected readonly contentElement: HTMLElement;
   protected readonly closeButton: HTMLButtonElement;
 
-  constructor(
-    container: HTMLElement,
-    protected readonly events: IEvents,
-  ) {
+  constructor(container: HTMLElement) {
     super(container);
 
     this.contentElement = ensureElement<HTMLElement>(
@@ -23,7 +19,13 @@ export class Modal extends Component<HTMLElement> {
     );
 
     this.closeButton.addEventListener("click", () => {
-      this.events.emit("modal:close");
+      this.close();
+    });
+
+    container.addEventListener("click", (event) => {
+      if (event.target === this.container) {
+        this.close();
+      }
     });
   }
 

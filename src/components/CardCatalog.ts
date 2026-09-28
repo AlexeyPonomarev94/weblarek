@@ -1,46 +1,16 @@
-import { IProduct } from "../types";
-import { Card } from "./Card";
-import { categoryMap } from "../utils/constants";
-import { IEvents } from "./base/Events";
-import { ensureElement } from "../utils/utils";
+import { CardImage } from "./CardImage";
 
-export class CardCatalog extends Card<IProduct> {
-  protected readonly categoryElement: HTMLElement;
-  protected readonly imageElement: HTMLImageElement;
+type CardCatalogActions = {
+  onClick: () => void;
+};
 
+export class CardCatalog extends CardImage {
   constructor(
     container: HTMLElement,
-    protected readonly events: IEvents,
+    actions: CardCatalogActions,
   ) {
     super(container);
 
-    this.categoryElement = ensureElement<HTMLElement>(
-      ".card__category",
-      container,
-    );
-
-    this.imageElement = ensureElement<HTMLImageElement>(
-      ".card__image",
-      container,
-    );
-
-    container.addEventListener("click", () => {
-      this.events.emit("card:select", {
-        id: this.container.dataset.id,
-      });
-    });
-  }
-
-  set id(value: string) {
-    this.container.dataset.id = value;
-  }
-
-  set category(value: string) {
-    this.categoryElement.textContent = value;
-    this.categoryElement.className = `card__category ${categoryMap[value as keyof typeof categoryMap]}`;
-  }
-
-  set image(value: string) {
-    this.setImage(this.imageElement, value);
+    container.addEventListener("click", actions.onClick);
   }
 }

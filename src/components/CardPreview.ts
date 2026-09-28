@@ -1,30 +1,22 @@
 import { IProduct } from "../types";
-import { categoryMap } from "../utils/constants";
-import { IEvents } from "./base/Events";
-import { Card } from "./Card";
+import { CardImage } from "./CardImage";
 import { ensureElement } from "../utils/utils";
 
-export class CardPreview extends Card<IProduct> {
-  protected readonly imageElement: HTMLImageElement;
-  protected readonly categoryElement: HTMLElement;
+type CardPreviewActions = {
+  onClick: () => void;
+};
+
+type CardPreviewData = IProduct & {
+  button: string;
+  disabled: boolean;
+};
+
+export class CardPreview extends CardImage<CardPreviewData> {
   protected readonly descriptionElement: HTMLElement;
   protected readonly buttonElement: HTMLButtonElement;
 
-  constructor(
-    container: HTMLElement,
-    protected readonly events: IEvents,
-  ) {
+  constructor(container: HTMLElement, actions: CardPreviewActions) {
     super(container);
-
-    this.imageElement = ensureElement<HTMLImageElement>(
-      ".card__image",
-      container,
-    );
-
-    this.categoryElement = ensureElement<HTMLElement>(
-      ".card__category",
-      container,
-    );
 
     this.descriptionElement = ensureElement<HTMLElement>(
       ".card__text",
@@ -36,24 +28,15 @@ export class CardPreview extends Card<IProduct> {
       container,
     );
 
-    this.buttonElement.addEventListener("click", () => {
-      this.events.emit("card:add", {
-        id: this.container.dataset.id,
-      });
-    });
+    this.buttonElement.addEventListener("click", actions.onClick);
   }
 
-  set id(value: string) {
-    this.container.dataset.id = value;
+  set button(value: string) {
+    this.buttonElement.textContent = value;
   }
 
-  set image(value: string) {
-    this.setImage(this.imageElement, value);
-  }
-
-  set category(value: string) {
-    this.categoryElement.textContent = value;
-    this.categoryElement.className = `card__category ${categoryMap[value as keyof typeof categoryMap]}`;
+  set disabled(value: boolean) {
+    this.buttonElement.disabled = value;
   }
 
   set description(value: string) {
