@@ -1,7 +1,5 @@
 import "./scss/styles.scss";
 
-console.log("MAIN ЗАПУЩЕН");
-
 import { Api } from "./components/base/Api";
 import { ProductCatalog } from "./components/models/ProductCatalog";
 import { Basket as BasketModel } from "./components/models/Basket";
@@ -19,7 +17,7 @@ import { CardBasket } from "./components/CardBasket";
 import { OrderForm } from "./components/OrderForm";
 import { ContactsForm } from "./components/ContactsForm";
 import { Success } from "./components/Success";
-import { ensureElement } from "./utils/utils";
+import { cloneTemplate, ensureElement } from "./utils/utils";
 
 const events = new EventEmitter();
 
@@ -36,34 +34,28 @@ const gallery = new Gallery(galleryElement);
 const modal = new Modal(modalElement);
 
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>("#card-catalog");
-
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>("#card-preview");
-
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>("#card-basket");
 
+const cardPreviewElement = cloneTemplate(cardPreviewTemplate);
+
+const cardPreview = new CardPreview(cardPreviewElement, {
+  onClick: () => events.emit("card:button"),
+});
+
 const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
-
 const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
-
 const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
-
-console.log("Список покупок после очистки", basket.getItems());
-
 const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 
 const api = new Api(API_URL);
 const webLarekApi = new WebLarekApi(api);
 
-let isBasketOpen = false;
-
 events.on("catalog:changed", () => {
   const products = productsModel.getProducts();
 
   const cards = products.map((product) => {
-    const cardElement =
-      cardCatalogTemplate.content.firstElementChild!.cloneNode(
-        true,
-      ) as HTMLElement;
+    const cardElement = cloneTemplate(cardCatalogTemplate);
 
     const card = new CardCatalog(cardElement, {
       onClick: () => events.emit("card:select", { id: product.id }),
@@ -93,15 +85,7 @@ events.on("product:selected", () => {
 
   if (!product) return;
 
-  const cardElement = cardPreviewTemplate.content.firstElementChild!.cloneNode(
-    true,
-  ) as HTMLElement;
-
-  const card = new CardPreview(cardElement, {
-    onClick: () => events.emit("card:button"),
-  });
-
-  modal.content = card.render({
+  modal.content = cardPreview.render({
     title: product.title,
     price: product.price,
     category: product.category,
@@ -137,23 +121,16 @@ events.on("card:button", () => {
 
 events.on("basket:changed", () => {
   header.counter = basket.getCount();
-
-  if (isBasketOpen) {
-    modal.content = renderBasket();
-  }
+  modal.content = renderBasket();
 });
 
 const renderBasket = () => {
-  const basketElement = basketTemplate.content.firstElementChild!.cloneNode(
-    true,
-  ) as HTMLElement;
+  const basketElement = cloneTemplate(basketTemplate);
 
   const basketView = new BasketView(basketElement, events);
 
   const items = basket.getItems().map((product, index) => {
-    const cardElement = cardBasketTemplate.content.firstElementChild!.cloneNode(
-      true,
-    ) as HTMLElement;
+    const cardElement = cloneTemplate(cardBasketTemplate);
 
     const card = new CardBasket(cardElement, () => {
       basket.remove(product);
@@ -174,9 +151,6 @@ const renderBasket = () => {
 };
 
 events.on("basket:open", () => {
-  isBasketOpen = true;
-
-  modal.content = renderBasket();
   modal.open();
 });
 
@@ -191,11 +165,7 @@ events.on<{ id: string }>("basket:remove", ({ id }) => {
 let orderForm: OrderForm | null = null;
 
 events.on("basket:order", () => {
-  isBasketOpen = false;
-
-  const orderElement = orderTemplate.content.firstElementChild!.cloneNode(
-    true,
-  ) as HTMLFormElement;
+  const orderElement = cloneTemplate(orderTemplate) as HTMLFormElement;
 
   orderForm = new OrderForm(orderElement, events);
 
@@ -236,6 +206,10 @@ events.on<{ payment: string }>("order:payment", ({ payment }) => {
     payment: payment as "card" | "cash",
   });
 
+  if (orderForm) {
+    orderForm.payment = payment as "card" | "cash";
+  }
+
   validateOrder();
 });
 
@@ -260,9 +234,7 @@ events.on<{ valid: boolean; errors: string }>(
 let contactsForm: ContactsForm | null = null;
 
 events.on("order:submit", () => {
-  const contactsElement = contactsTemplate.content.firstElementChild!.cloneNode(
-    true,
-  ) as HTMLFormElement;
+  const contactsElement = cloneTemplate(contactsTemplate) as HTMLFormElement;
 
   contactsForm = new ContactsForm(contactsElement, events);
 
@@ -301,10 +273,7 @@ events.on("contacts:submit", () => {
   webLarekApi
     .createOrder(order)
     .then((result) => {
-      const successElement =
-        successTemplate.content.firstElementChild!.cloneNode(
-          true,
-        ) as HTMLElement;
+      const successElement = cloneTemplate(successTemplate);
 
       const success = new Success(successElement, events);
 
