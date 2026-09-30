@@ -20,6 +20,8 @@ export class Form<T> extends Component<T> {
 
     this.errorsElement = ensureElement<HTMLElement>(".form__errors", container);
 
+    this.submitButton.disabled = true;
+
     container.addEventListener("submit", (event) => {
       event.preventDefault();
       this.events.emit(`${this.name}:submit`);

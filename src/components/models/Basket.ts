@@ -13,9 +13,13 @@ export class Basket {
 
 // добавление товара, который был получен в параметре, в массив корзины
   add(product: IProduct): void {
-    this.items.push(product);
-    this.events.emit('basket:changed');
+  if (this.has(product.id)) {
+    return;
   }
+
+  this.items.push(product);
+  this.events.emit('basket:changed');
+}
 
 // удаление товара, полученного в параметре из массива корзины
   remove(product: IProduct): void {

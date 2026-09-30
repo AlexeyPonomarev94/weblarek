@@ -1,16 +1,24 @@
+import { IProduct } from "../types";
 import { CardImage } from "./CardImage";
+import { IEvents } from "./base/Events";
 
-type CardCatalogActions = {
-  onClick: () => void;
-};
-
-export class CardCatalog extends CardImage {
+export class CardCatalog extends CardImage<IProduct> {
   constructor(
     container: HTMLElement,
-    actions: CardCatalogActions,
+    protected readonly events: IEvents,
   ) {
     super(container);
 
-    container.addEventListener("click", actions.onClick);
+    container.addEventListener("click", () => {
+      const id = this.container.dataset.id;
+
+      if (id) {
+        this.events.emit("card:select", { id });
+      }
+    });
+  }
+
+  set id(value: string) {
+    this.container.dataset.id = value;
   }
 }
