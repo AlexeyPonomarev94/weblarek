@@ -58,16 +58,12 @@ const basketView = new BasketView(basketElement, events);
 
 const orderElement = cloneTemplate(orderTemplate) as HTMLFormElement;
 const orderForm = new OrderForm(orderElement, events);
-const orderView = orderForm.render();
 
 const contactsElement = cloneTemplate(contactsTemplate) as HTMLFormElement;
-
 const contactsForm = new ContactsForm(contactsElement, events);
-const contactsView = contactsForm.render();
 
 const successElement = cloneTemplate(successTemplate);
 const success = new Success(successElement, events);
-const successView = success.render();
 
 const api = new Api(API_URL);
 const webLarekApi = new WebLarekApi(api);
@@ -174,7 +170,7 @@ events.on<{ id: string }>("basket:remove", ({ id }) => {
 });
 
 events.on("basket:order", () => {
-  modal.content = orderView;
+  modal.content = orderForm.render();
   modal.open();
 });
 
@@ -212,7 +208,7 @@ events.on<{ address: string }>("order:input", ({ address }) => {
 });
 
 events.on("order:submit", () => {
-  modal.content = contactsView;
+  modal.content = contactsForm.render();
   modal.open();
 });
 
@@ -234,7 +230,7 @@ events.on("contacts:submit", () => {
       buyer.clear();
 
       success.total = result.total;
-      modal.content = successView;
+      modal.content = success.render();
       modal.open();
     })
     .catch((error) => {
